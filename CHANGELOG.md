@@ -1,5 +1,9 @@
 # Historique
 
+## 0.1.4
+
+- Retrait de l’INE et du statut boursier individuel des rapports complets PDF et XLSX. Les comparatifs agrégés restent disponibles.
+
 ## 0.1.3
 
 - Lecture des fichiers Excel avec SheetJS CE 0.20.3, corrigé pour

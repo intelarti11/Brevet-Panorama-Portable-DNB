@@ -132,9 +132,6 @@ const textOrUnknown = (value: string | undefined): string =>
 
 const sexLabel = (row: ExportStudentRow): string => row.sex ?? UNKNOWN;
 
-const scholarshipLabel = (row: ExportStudentRow): string =>
-  row.scholarship === undefined ? UNKNOWN : row.scholarship ? "Oui" : "Non";
-
 const subsubjectHeader = (subject: BrevetPanoramaSubsubject): string =>
   `${subject.label} /${subject.maxScore}`;
 
@@ -680,18 +677,17 @@ export function createBrevetPanoramaWorkbook(report: BrevetPanoramaReportData): 
     createTableSheet(
       "Classement des dix meilleures moyennes",
       subtitle,
-      ["Rang", "INE", "Nom", "Prénom", "Ancienne classe", "Moyenne DNB", "Résultat"],
+      ["Rang", "Nom", "Prénom", "Ancienne classe", "Moyenne DNB", "Résultat"],
       report.top10.map((row, index) => [
         index + 1,
-        row.ine,
         row.lastName,
         row.firstName,
         row.formerClass,
         row.averageDnb,
         row.result,
       ]),
-      [8, 18, 22, 20, 15, 14, 24],
-      [5],
+      [8, 22, 20, 15, 14, 24],
+      [4],
     ),
     "Top 10",
   );
@@ -703,13 +699,11 @@ export function createBrevetPanoramaWorkbook(report: BrevetPanoramaReportData): 
       `${subtitle} — les anciennes classes issues du brevet blanc sont appariées uniquement par INE exact`,
       [
         "Rang DNB",
-        "INE",
         "Nom",
         "Prénom",
         "Ancienne classe",
         "Série",
         "Sexe",
-        "Boursier",
         "Résultat",
         "Moy. DNB",
         "Contrôle continu",
@@ -729,13 +723,11 @@ export function createBrevetPanoramaWorkbook(report: BrevetPanoramaReportData): 
       ],
       getRankedRows(asExtendedReport(report)).map((row) => [
         row.rank ?? "",
-        row.ine,
         row.lastName,
         row.firstName,
         row.formerClass,
         row.serie,
         sexLabel(row),
-        scholarshipLabel(row),
         row.result,
         row.averageDnb,
         row.controleContinu,
@@ -753,8 +745,8 @@ export function createBrevetPanoramaWorkbook(report: BrevetPanoramaReportData): 
         row.averageBb2,
         row.deltaBb2Dnb,
       ]),
-      [10, 18, 22, 20, 15, 16, 11, 12, 25, 12, 16, 17, 11, ...frenchSubsubjects.map(() => 21), 11, 14, 10, 16, 11, ...scienceSubsubjects.map(() => 21), 11, 11, 11, 15],
-      Array.from({ length: 13 + subsubjectCount }, (_, index) => index + 9),
+      [10, 22, 20, 15, 16, 11, 25, 12, 16, 17, 11, ...frenchSubsubjects.map(() => 21), 11, 14, 10, 16, 11, ...scienceSubsubjects.map(() => 21), 11, 11, 11, 15],
+      Array.from({ length: 13 + subsubjectCount }, (_, index) => index + 7),
     ),
     "Élèves",
   );
@@ -782,12 +774,10 @@ export function createBrevetPanoramaWorkbook(report: BrevetPanoramaReportData): 
 
   const rankedHeaders = [
     "Rang DNB",
-    "INE",
     "Nom",
     "Prénom",
     "Ancienne classe",
     "Sexe",
-    "Boursier",
     "Résultat",
     "Moy. DNB",
     "Contrôle continu",
@@ -806,15 +796,13 @@ export function createBrevetPanoramaWorkbook(report: BrevetPanoramaReportData): 
     "Écart BB2 → DNB",
   ];
   const alphabeticalHeaders = ["N°", ...rankedHeaders.slice(1)];
-  const studentWidths = [10, 18, 20, 18, 15, 11, 12, 20, 12, 16, 17, 11, ...frenchSubsubjects.map(() => 21), 11, 14, 10, 16, 11, ...scienceSubsubjects.map(() => 21), 11, 11, 11, 15];
+  const studentWidths = [10, 20, 18, 15, 11, 20, 12, 16, 17, 11, ...frenchSubsubjects.map(() => 21), 11, 14, 10, 16, 11, ...scienceSubsubjects.map(() => 21), 11, 11, 11, 15];
   const toStudentValues = (row: ExportStudentRow, index: number, includeRank: boolean): CellValue[] => [
     includeRank ? row.rank : index + 1,
-    row.ine,
     row.lastName,
     row.firstName,
     row.formerClass,
     sexLabel(row),
-    scholarshipLabel(row),
     row.result,
     row.averageDnb,
     row.controleContinu,
@@ -841,7 +829,7 @@ export function createBrevetPanoramaWorkbook(report: BrevetPanoramaReportData): 
       alphabeticalHeaders,
       getAlphabeticalRows(extended).map((row, index) => toStudentValues(row, index, false)),
       studentWidths,
-      Array.from({ length: 13 + subsubjectCount }, (_, index) => index + 8),
+      Array.from({ length: 13 + subsubjectCount }, (_, index) => index + 6),
     ),
     "Tout alpha",
   );
@@ -854,7 +842,7 @@ export function createBrevetPanoramaWorkbook(report: BrevetPanoramaReportData): 
       rankedHeaders,
       getRankedRows(extended).map((row, index) => toStudentValues(row, index, true)),
       studentWidths,
-      Array.from({ length: 13 + subsubjectCount }, (_, index) => index + 8),
+      Array.from({ length: 13 + subsubjectCount }, (_, index) => index + 6),
     ),
     "Classement",
   );
@@ -867,9 +855,9 @@ export function createBrevetPanoramaWorkbook(report: BrevetPanoramaReportData): 
         `${classDetail.className} — ordre alphabétique`,
         classSubtitle,
         alphabeticalHeaders.filter((header) => header !== "Ancienne classe"),
-        classDetail.alphabeticalRows.map((row, index) => toStudentValues(row, index, false).filter((_, columnIndex) => columnIndex !== 4)),
-        studentWidths.filter((_, columnIndex) => columnIndex !== 4),
-        Array.from({ length: 13 + subsubjectCount }, (_, index) => index + 7),
+        classDetail.alphabeticalRows.map((row, index) => toStudentValues(row, index, false).filter((_, columnIndex) => columnIndex !== 3)),
+        studentWidths.filter((_, columnIndex) => columnIndex !== 3),
+        Array.from({ length: 13 + subsubjectCount }, (_, index) => index + 5),
       ),
       uniqueSheetName(workbook, `${classDetail.className} - Alpha`),
     );
@@ -880,9 +868,9 @@ export function createBrevetPanoramaWorkbook(report: BrevetPanoramaReportData): 
         `${classDetail.className} — classement par moyenne`,
         classSubtitle,
         rankedHeaders.filter((header) => header !== "Ancienne classe"),
-        classDetail.rankedRows.map((row, index) => toStudentValues(row, index, true).filter((_, columnIndex) => columnIndex !== 4)),
-        studentWidths.filter((_, columnIndex) => columnIndex !== 4),
-        Array.from({ length: 13 + subsubjectCount }, (_, index) => index + 7),
+        classDetail.rankedRows.map((row, index) => toStudentValues(row, index, true).filter((_, columnIndex) => columnIndex !== 3)),
+        studentWidths.filter((_, columnIndex) => columnIndex !== 3),
+        Array.from({ length: 13 + subsubjectCount }, (_, index) => index + 5),
       ),
       uniqueSheetName(workbook, classDetail.className),
     );
@@ -1038,12 +1026,10 @@ function addGroupComparisonPage(
 function studentPdfHeaders(includeRank: boolean): string[] {
   return [
     ...(includeRank ? ["Rang"] : []),
-    "INE",
     "Nom",
     "Prénom",
     "Classe",
     "Sexe",
-    "Boursier",
     "Résultat",
     "Moy. DNB",
     "CC",
@@ -1064,12 +1050,10 @@ function studentPdfHeaders(includeRank: boolean): string[] {
 function studentPdfRow(row: ExportStudentRow, includeRank: boolean): Array<string | number> {
   return [
     ...(includeRank ? [row.rank ?? ""] : []),
-    textOrUnknown(row.ine),
     textOrUnknown(row.lastName),
     textOrUnknown(row.firstName),
     textOrUnknown(row.formerClass),
     sexLabel(row),
-    scholarshipLabel(row),
     textOrUnknown(row.result),
     pdfUnknownNumber(row.averageDnb),
     pdfUnknownNumber(row.controleContinu),
@@ -1114,14 +1098,12 @@ function addStudentListPage(
     headStyles: {fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold", fontSize: 5.35},
     alternateRowStyles: {fillColor: [248, 250, 252]},
     columnStyles: {
-      0: {cellWidth: includeRank ? 8 : 17},
-      1: {cellWidth: 19},
-      2: {cellWidth: 18},
-      3: {cellWidth: 16},
-      4: {cellWidth: 12},
-      5: {cellWidth: 10},
-      6: {cellWidth: 10},
-      7: {cellWidth: 18},
+      0: {cellWidth: includeRank ? 8 : 22},
+      1: {cellWidth: includeRank ? 22 : 20},
+      2: {cellWidth: includeRank ? 20 : 15},
+      3: {cellWidth: includeRank ? 15 : 10},
+      4: {cellWidth: includeRank ? 10 : 20},
+      5: {cellWidth: includeRank ? 20 : 12},
     },
     willDrawPage: () => drawPdfHeader(doc, title, subtitle),
   });
@@ -1281,7 +1263,6 @@ function addStudentAppendix(
     margin: { top: 28, left: 7, right: 7, bottom: 12 },
     theme: "grid",
     head: [[
-      "INE",
       "Nom",
       "Prénom",
       "Classe",
@@ -1300,7 +1281,6 @@ function addStudentAppendix(
       "Écart",
     ]],
     body: report.studentRows.map((row) => [
-      row.ine,
       row.lastName,
       row.firstName,
       row.formerClass ?? "",
@@ -1347,13 +1327,12 @@ function addSubsubjectStudentAppendix(
     margin: { top: 28, left: 7, right: 7, bottom: 12 },
     theme: "grid",
     head: [[
-      "INE", "Nom", "Prénom", "Classe", "Français /20",
+      "Nom", "Prénom", "Classe", "Français /20",
       ...french.map(subsubjectHeader),
       "Sciences /20",
       ...sciences.map(subsubjectHeader),
     ]],
     body: report.studentRows.map((row) => [
-      row.ine,
       row.lastName,
       row.firstName,
       row.formerClass ?? "",
@@ -1365,7 +1344,7 @@ function addSubsubjectStudentAppendix(
     styles: { ...pdfTableStyles(doc), fontSize: 7, cellPadding: 1.2 },
     headStyles: { fillColor: [37, 99, 235], textColor: 255, fontStyle: "bold" },
     alternateRowStyles: { fillColor: [248, 250, 252] },
-    columnStyles: { 0: { cellWidth: 23 }, 1: { cellWidth: 25 }, 2: { cellWidth: 25 }, 3: { cellWidth: 15 } },
+    columnStyles: { 0: { cellWidth: 25 }, 1: { cellWidth: 25 }, 2: { cellWidth: 15 } },
     willDrawPage: () => drawPdfHeader(doc, title, subtitle),
   });
 }
